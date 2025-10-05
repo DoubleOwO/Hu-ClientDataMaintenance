@@ -139,6 +139,11 @@ function truncateText(text, length = 15) {
   return text.slice(0, length) + '...'
 }
 
+function formatDateForDisplay(dateString) {
+  if (!dateString) return ''
+  return dateString.replace(/-/g, '/')
+}
+
 // --- Sort & Pagination Functions ---
 function sortBy(key) {
   if (sortKey.value === key) {
@@ -333,7 +338,7 @@ async function updateRecord() {
               td(data-label="備註") {{ truncateText(client.memo) }}
               td(data-label="最新維修紀錄")
                 ul.record-list
-                  li(v-for="record in getLatestRecords(client.vin)", :key="record.id") {{ record.date }}: {{ record.item }} (NT${{ record.price }})
+                  li(v-for="record in getLatestRecords(client.vin)", :key="record.id") {{ formatDateForDisplay(record.date) }} {{ record.item }} (NT${{ record.price }})
                   li.no-record(v-if="getLatestRecords(client.vin).length === 0") 無維修紀錄
                 button.link-button(@click="showAllRecords(client)") 查看更多
               td(data-label="操作")
@@ -344,7 +349,7 @@ async function updateRecord() {
               td.no-results(colspan="8") 找不到符合的客戶資料。
 
       //- Pagination Controls
-      .pagination-controls(v-if="!isLoading && totalPages > 1")
+      .pagination-controls(v-if="!isLoading && totalPages >= 1")
         select(v-model="pageSize")
           option(v-for="size in pageSizes", :key="size", :value="size") 每頁 {{ size }} 筆
         span 共 {{ filteredClients.length }} 筆資料，第 {{ currentPage }} / {{ totalPages }} 頁
@@ -366,7 +371,7 @@ async function updateRecord() {
               input(type="date", v-model="newRecord.date", required)
               input(type="text", v-model="newRecord.item", placeholder="維修項目", required)
               input(type="number", v-model="newRecord.price", placeholder="價格")
-              div
+              div.record-form-buttons
                 button.btn.btn-primary(type="submit") 儲存紀錄
                 button.btn(type="button", @click="showAddRecordForm = false") 取消
             ul.record-list-modal
@@ -380,8 +385,8 @@ async function updateRecord() {
                     button.btn(type="button", @click="cancelEditRecord") 取消
                 .record-item(v-else)
                   span
-                    strong {{ record.date }}
-                    | : {{ record.item }} -
+                    strong {{ formatDateForDisplay(record.date) }}
+                    |  {{ record.item }} -
                     em NT${{ record.price }}
                   div
                     button.link-button(@click="startEditRecord(record)") 編輯
@@ -481,6 +486,7 @@ body {
   flex-wrap: wrap;
   gap: 1rem;
   align-items: flex-start;
+  margin-bottom: 1.5rem;
 }
 .form-group {
   display: flex;
@@ -579,6 +585,9 @@ th.sortable:hover { background-color: #e9ecef; }
 .pagination-controls { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; flex-wrap: wrap; gap: 1rem; }
 .pagination-controls select { padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid #e0e0e0; }
 .pagination-controls div { display: flex; gap: 0.5rem; }
+.pagination-controls .btn:disabled {
+  background-color: var(--gray);
+}
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 100; }
 .modal-content { background-color: white; padding: 0; border-radius: var(--border-radius); min-width: 600px; max-width: 90%; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); display: flex; flex-direction: column; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--gray); }
@@ -590,4 +599,10 @@ th.sortable:hover { background-color: #e9ecef; }
 .record-form,
 .record-form-inline { border: 1px solid var(--gray); padding: 1rem; margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .btn-full-width { width: 100%; margin-bottom: 1rem; }
+.record-form-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end; /* Align buttons to the right, similar to .form-buttons */
+  margin-top: 0.5rem; /* Add a small margin above the buttons */
+}
 </style>
