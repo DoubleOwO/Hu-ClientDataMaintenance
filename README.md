@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Hu-ClientDataMaintenance
 
 This template should help get you started developing with Vue 3 in Vite.
@@ -42,3 +43,6 @@ npm run build
 ```sh
 npm run lint
 ```
+=======
+# Hu-ClientDataMaintenance
+>>>>>>> 6a5ab9e662b5f8c948862702b591bda930949b37
